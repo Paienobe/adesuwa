@@ -11,6 +11,24 @@ import (
 	"github.com/google/uuid"
 )
 
+const getBuyerByID = `-- name: GetBuyerByID :one
+SELECT id, first_name, last_name, email, profile_image, password FROM buyer WHERE id = $1
+`
+
+func (q *Queries) GetBuyerByID(ctx context.Context, id uuid.UUID) (Buyer, error) {
+	row := q.db.QueryRowContext(ctx, getBuyerByID, id)
+	var i Buyer
+	err := row.Scan(
+		&i.ID,
+		&i.FirstName,
+		&i.LastName,
+		&i.Email,
+		&i.ProfileImage,
+		&i.Password,
+	)
+	return i, err
+}
+
 const registerBuyer = `-- name: RegisterBuyer :one
 INSERT into buyer (id, first_name, last_name, email, password)
 VALUES ($1, $2, $3, $4, $5)

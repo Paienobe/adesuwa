@@ -11,6 +11,44 @@ import (
 	"github.com/google/uuid"
 )
 
+const findVendorByEmail = `-- name: FindVendorByEmail :one
+SELECT id, name, email, profile_image, banner_image, description, password FROM vendor WHERE email = $1
+`
+
+func (q *Queries) FindVendorByEmail(ctx context.Context, email string) (Vendor, error) {
+	row := q.db.QueryRowContext(ctx, findVendorByEmail, email)
+	var i Vendor
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.ProfileImage,
+		&i.BannerImage,
+		&i.Description,
+		&i.Password,
+	)
+	return i, err
+}
+
+const findVendorById = `-- name: FindVendorById :one
+SELECT id, name, email, profile_image, banner_image, description, password FROM vendor WHERE id = $1
+`
+
+func (q *Queries) FindVendorById(ctx context.Context, id uuid.UUID) (Vendor, error) {
+	row := q.db.QueryRowContext(ctx, findVendorById, id)
+	var i Vendor
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.ProfileImage,
+		&i.BannerImage,
+		&i.Description,
+		&i.Password,
+	)
+	return i, err
+}
+
 const registerVendor = `-- name: RegisterVendor :one
 INSERT INTO vendor (id, name, email, password)
 VALUES($1, $2, $3, $4)

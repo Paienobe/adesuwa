@@ -7,14 +7,17 @@ import (
 	"net/http"
 	"os"
 
-	controllers "github.com/Paienobe/adesuwa/internal/controllers/Registrations"
+	"github.com/Paienobe/adesuwa/internal/controllers"
 	"github.com/Paienobe/adesuwa/internal/database"
+	"github.com/Paienobe/adesuwa/internal/middleware"
 	"github.com/Paienobe/adesuwa/internal/models"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
+
+// func (g database.Buyer) em() {}
 
 func main() {
 	godotenv.Load()
@@ -51,6 +54,8 @@ func main() {
 	}))
 
 	router.Post("/register-vendor", controllers.RegisterVendor(&apiCfg))
+	router.Post("/login-vendor", controllers.LoginVendor(&apiCfg))
+	router.Post("/create-product", middleware.VendorIsAuthorized(&apiCfg, controllers.CreateNewProduct))
 
 	server := &http.Server{
 		Handler: router,

@@ -19,6 +19,17 @@ type Buyer struct {
 	Password     string
 }
 
+type Product struct {
+	ID              uuid.UUID
+	Name            string
+	Images          []string
+	Price           string
+	AmountAvailable int32
+	Category        string
+	Discount        int32
+	VendorID        uuid.UUID
+}
+
 type Vendor struct {
 	ID           uuid.UUID
 	Name         string
