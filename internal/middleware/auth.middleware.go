@@ -14,8 +14,8 @@ import (
 	"github.com/google/uuid"
 )
 
-type protectedVendorHandler func(w http.ResponseWriter, r *http.Request, vendor database.Vendor)
-type protectedBuyerHandler func(w http.ResponseWriter, r *http.Request, vendor database.Buyer)
+type protectedVendorHandler func(w http.ResponseWriter, r *http.Request, vendor database.Vendor, apiCfg *models.ApiConfig)
+type protectedBuyerHandler func(w http.ResponseWriter, r *http.Request, vendor database.Buyer, apiCfg *models.ApiConfig)
 
 func VendorIsAuthorized(apiCfg *models.ApiConfig, handler protectedVendorHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -27,11 +27,11 @@ func VendorIsAuthorized(apiCfg *models.ApiConfig, handler protectedVendorHandler
 
 		vendor, err := apiCfg.DB.FindVendorById(r.Context(), id)
 		if err != nil {
-			log.Println(err)
-			http.Error(w, "Error finding vendor", http.StatusNotFound)
+			log.Println("Error finding vendor: ", err)
+			return
 		}
 
-		handler(w, r, vendor)
+		handler(w, r, vendor, apiCfg)
 	}
 }
 
@@ -40,16 +40,16 @@ func BuyerIsAuthorized(apiCfg *models.ApiConfig, handler protectedBuyerHandler) 
 		id, err := jwtValidation(w, r)
 		if err != nil {
 			log.Println(err)
-			http.Error(w, "buyer not authorized", http.StatusUnauthorized)
+			http.Error(w, "Buyer not authorized", http.StatusUnauthorized)
 		}
 
 		buyer, err := apiCfg.DB.GetBuyerByID(r.Context(), id)
 		if err != nil {
-			log.Println(err)
-			http.Error(w, "error finding vendor", http.StatusNotFound)
+			log.Println("error finding vendor: ", err)
+			return
 		}
 
-		handler(w, r, buyer)
+		handler(w, r, buyer, apiCfg)
 	}
 }
 
@@ -77,7 +77,6 @@ func jwtValidation(w http.ResponseWriter, r *http.Request) (uuid.UUID, error) {
 
 	if err != nil {
 		log.Printf("Failed to parse JWT %v", err)
-		http.Error(w, "something went wrong", http.StatusInternalServerError)
 		return uuid.Nil, errors.New("something went wrong")
 	}
 

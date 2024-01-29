@@ -53,9 +53,13 @@ func main() {
 		MaxAge:           300,
 	}))
 
+	// ===================== vendor routes =====================
 	router.Post("/register-vendor", controllers.RegisterVendor(&apiCfg))
 	router.Post("/login-vendor", controllers.LoginVendor(&apiCfg))
 	router.Post("/create-product", middleware.VendorIsAuthorized(&apiCfg, controllers.CreateNewProduct))
+	router.Post("/update-profile-pic", middleware.VendorIsAuthorized(&apiCfg, controllers.UpdateVendorProfilePic))
+	router.Post("/update-banner", middleware.VendorIsAuthorized(&apiCfg, controllers.UpdateVendorBanner))
+	router.Post("/update-description", middleware.VendorIsAuthorized(&apiCfg, controllers.UpdateVendorDescription))
 
 	server := &http.Server{
 		Handler: router,
@@ -65,24 +69,3 @@ func main() {
 	fmt.Println("Server starting on PORT ", portString)
 	log.Fatal(server.ListenAndServe())
 }
-
-// func(w http.ResponseWriter, r *http.Request) {
-// 	// try returning a handler function from the controller
-// 	err := r.ParseMultipartForm(10 << 20)
-// 	if err != nil {
-// 		fmt.Println(err)
-// 	}
-
-// 	json.NewDecoder(r.Body).Decode(r.Body)
-
-// 	file, _, err := r.FormFile("file")
-// 	if err != nil {
-// 		fmt.Println(err)
-// 	}
-
-// 	fmt.Println(file, "file")
-// 	url := cloudinary.UploadImage(file, uuid.NewString())
-// 	fmt.Println(url, " url")
-
-// 	// fmt.Println(handler, "handler")
-// }

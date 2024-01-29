@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/google/uuid"
 )
@@ -80,4 +81,58 @@ func (q *Queries) RegisterVendor(ctx context.Context, arg RegisterVendorParams) 
 		&i.Password,
 	)
 	return i, err
+}
+
+const updateVendorBanner = `-- name: UpdateVendorBanner :one
+UPDATE vendor SET banner_image = $1
+WHERE id = $2
+RETURNING banner_image
+`
+
+type UpdateVendorBannerParams struct {
+	BannerImage sql.NullString
+	ID          uuid.UUID
+}
+
+func (q *Queries) UpdateVendorBanner(ctx context.Context, arg UpdateVendorBannerParams) (sql.NullString, error) {
+	row := q.db.QueryRowContext(ctx, updateVendorBanner, arg.BannerImage, arg.ID)
+	var banner_image sql.NullString
+	err := row.Scan(&banner_image)
+	return banner_image, err
+}
+
+const updateVendorDescription = `-- name: UpdateVendorDescription :one
+UPDATE vendor SET description = $1
+WHERE id = $2
+RETURNING description
+`
+
+type UpdateVendorDescriptionParams struct {
+	Description sql.NullString
+	ID          uuid.UUID
+}
+
+func (q *Queries) UpdateVendorDescription(ctx context.Context, arg UpdateVendorDescriptionParams) (sql.NullString, error) {
+	row := q.db.QueryRowContext(ctx, updateVendorDescription, arg.Description, arg.ID)
+	var description sql.NullString
+	err := row.Scan(&description)
+	return description, err
+}
+
+const updateVendorProfilePicture = `-- name: UpdateVendorProfilePicture :one
+UPDATE vendor SET profile_image = $1
+WHERE id = $2
+RETURNING profile_image
+`
+
+type UpdateVendorProfilePictureParams struct {
+	ProfileImage sql.NullString
+	ID           uuid.UUID
+}
+
+func (q *Queries) UpdateVendorProfilePicture(ctx context.Context, arg UpdateVendorProfilePictureParams) (sql.NullString, error) {
+	row := q.db.QueryRowContext(ctx, updateVendorProfilePicture, arg.ProfileImage, arg.ID)
+	var profile_image sql.NullString
+	err := row.Scan(&profile_image)
+	return profile_image, err
 }
