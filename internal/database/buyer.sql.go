@@ -12,7 +12,7 @@ import (
 )
 
 const getBuyerByID = `-- name: GetBuyerByID :one
-SELECT id, first_name, last_name, email, profile_image, password FROM buyer WHERE id = $1
+SELECT id, first_name, last_name, email, profile_image, password, created_at, updated_at FROM buyer WHERE id = $1
 `
 
 func (q *Queries) GetBuyerByID(ctx context.Context, id uuid.UUID) (Buyer, error) {
@@ -25,6 +25,8 @@ func (q *Queries) GetBuyerByID(ctx context.Context, id uuid.UUID) (Buyer, error)
 		&i.Email,
 		&i.ProfileImage,
 		&i.Password,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -32,7 +34,7 @@ func (q *Queries) GetBuyerByID(ctx context.Context, id uuid.UUID) (Buyer, error)
 const registerBuyer = `-- name: RegisterBuyer :one
 INSERT into buyer (id, first_name, last_name, email, password)
 VALUES ($1, $2, $3, $4, $5)
-RETURNING id, first_name, last_name, email, profile_image, password
+RETURNING id, first_name, last_name, email, profile_image, password, created_at, updated_at
 `
 
 type RegisterBuyerParams struct {
@@ -59,6 +61,8 @@ func (q *Queries) RegisterBuyer(ctx context.Context, arg RegisterBuyerParams) (B
 		&i.Email,
 		&i.ProfileImage,
 		&i.Password,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }

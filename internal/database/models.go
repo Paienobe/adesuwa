@@ -6,6 +6,7 @@ package database
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -17,6 +18,8 @@ type Buyer struct {
 	Email        string
 	ProfileImage sql.NullString
 	Password     string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }
 
 type Product struct {
@@ -38,4 +41,6 @@ type Vendor struct {
 	BannerImage  sql.NullString
 	Description  sql.NullString
 	Password     string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }

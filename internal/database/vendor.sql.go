@@ -13,7 +13,7 @@ import (
 )
 
 const findVendorByEmail = `-- name: FindVendorByEmail :one
-SELECT id, name, email, profile_image, banner_image, description, password FROM vendor WHERE email = $1
+SELECT id, name, email, profile_image, banner_image, description, password, created_at, updated_at FROM vendor WHERE email = $1
 `
 
 func (q *Queries) FindVendorByEmail(ctx context.Context, email string) (Vendor, error) {
@@ -27,12 +27,14 @@ func (q *Queries) FindVendorByEmail(ctx context.Context, email string) (Vendor, 
 		&i.BannerImage,
 		&i.Description,
 		&i.Password,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const findVendorById = `-- name: FindVendorById :one
-SELECT id, name, email, profile_image, banner_image, description, password FROM vendor WHERE id = $1
+SELECT id, name, email, profile_image, banner_image, description, password, created_at, updated_at FROM vendor WHERE id = $1
 `
 
 func (q *Queries) FindVendorById(ctx context.Context, id uuid.UUID) (Vendor, error) {
@@ -46,6 +48,8 @@ func (q *Queries) FindVendorById(ctx context.Context, id uuid.UUID) (Vendor, err
 		&i.BannerImage,
 		&i.Description,
 		&i.Password,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -53,7 +57,7 @@ func (q *Queries) FindVendorById(ctx context.Context, id uuid.UUID) (Vendor, err
 const registerVendor = `-- name: RegisterVendor :one
 INSERT INTO vendor (id, name, email, password)
 VALUES($1, $2, $3, $4)
-RETURNING id, name, email, profile_image, banner_image, description, password
+RETURNING id, name, email, profile_image, banner_image, description, password, created_at, updated_at
 `
 
 type RegisterVendorParams struct {
@@ -79,6 +83,8 @@ func (q *Queries) RegisterVendor(ctx context.Context, arg RegisterVendorParams) 
 		&i.BannerImage,
 		&i.Description,
 		&i.Password,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
