@@ -31,6 +31,9 @@ type Product struct {
 	Category        string
 	Discount        int32
 	VendorID        uuid.UUID
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+	Description     string
 }
 
 type Vendor struct {
