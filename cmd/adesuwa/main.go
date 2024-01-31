@@ -60,6 +60,7 @@ func main() {
 	router.Post("/update-profile-pic", middleware.VendorIsAuthorized(&apiCfg, controllers.UpdateVendorProfilePic))
 	router.Post("/update-banner", middleware.VendorIsAuthorized(&apiCfg, controllers.UpdateVendorBanner))
 	router.Post("/update-description", middleware.VendorIsAuthorized(&apiCfg, controllers.UpdateVendorDescription))
+	router.Post("/product", middleware.VendorIsAuthorized(&apiCfg, controllers.CreateNewProduct))
 
 	server := &http.Server{
 		Handler: router,

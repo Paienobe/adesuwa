@@ -1,0 +1,8 @@
+-- +goose Up
+ALTER TABLE product
+ALTER COLUMN price
+SET DATA TYPE FLOAT;
+-- +goose Down
+ALTER TABLE product
+ALTER COLUMN price
+SET DATA TYPE DECIMAL(10, 2);

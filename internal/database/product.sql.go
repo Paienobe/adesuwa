@@ -14,7 +14,7 @@ import (
 
 const createProduct = `-- name: CreateProduct :one
 INSERT INTO product (id, name, images, price, amount_available, category, discount, vendor_id)
-VALUES ($1, $2, $3, $4, $5, $6, 0, $7)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING id, name, images, price, amount_available, category, discount, vendor_id
 `
 
@@ -22,9 +22,10 @@ type CreateProductParams struct {
 	ID              uuid.UUID
 	Name            string
 	Images          []string
-	Price           string
+	Price           float64
 	AmountAvailable int32
 	Category        string
+	Discount        int32
 	VendorID        uuid.UUID
 }
 
@@ -36,6 +37,7 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 		arg.Price,
 		arg.AmountAvailable,
 		arg.Category,
+		arg.Discount,
 		arg.VendorID,
 	)
 	var i Product

@@ -18,7 +18,7 @@ type imageUploadSuccess struct {
 }
 
 func UpdateVendorProfilePic(w http.ResponseWriter, r *http.Request, vendor database.Vendor, apiCfg *models.ApiConfig) {
-	file := utils.FileExtractor(w, r)
+	file := utils.FileExtractor(w, r, "file")
 
 	url := cloudinary.UploadImage(file, uuid.NewString())
 
@@ -35,7 +35,7 @@ func UpdateVendorProfilePic(w http.ResponseWriter, r *http.Request, vendor datab
 }
 
 func UpdateVendorBanner(w http.ResponseWriter, r *http.Request, vendor database.Vendor, apiCfg *models.ApiConfig) {
-	file := utils.FileExtractor(w, r)
+	file := utils.FileExtractor(w, r, "file")
 
 	url := cloudinary.UploadImage(file, uuid.NewString())
 
