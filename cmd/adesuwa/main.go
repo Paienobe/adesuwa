@@ -62,6 +62,9 @@ func main() {
 	router.Post("/update-description", middleware.VendorIsAuthorized(&apiCfg, controllers.UpdateVendorDescription))
 	router.Post("/product", middleware.VendorIsAuthorized(&apiCfg, controllers.CreateNewProduct))
 
+	// ===================== buyer routes =====================
+	router.Post("/order", middleware.BuyerIsAuthorized(&apiCfg, controllers.CreateOrder))
+
 	server := &http.Server{
 		Handler: router,
 		Addr:    ":" + portString,
