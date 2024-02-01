@@ -22,6 +22,26 @@ type Buyer struct {
 	UpdatedAt    time.Time
 }
 
+type CustomerOrder struct {
+	ID              uuid.UUID
+	BuyerID         uuid.UUID
+	CreatedAt       time.Time
+	Status          string
+	ShippingAddress string
+	PaymentMethod   string
+	PaymentStatus   string
+	TotalSpent      float64
+}
+
+type OrderItem struct {
+	ID        uuid.UUID
+	OrderID   uuid.UUID
+	ProductID uuid.UUID
+	VendorID  uuid.UUID
+	Quantity  int32
+	Price     float64
+}
+
 type Product struct {
 	ID              uuid.UUID
 	Name            string
