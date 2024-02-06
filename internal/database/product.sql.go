@@ -7,15 +7,16 @@ package database
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 )
 
 const createProduct = `-- name: CreateProduct :one
-INSERT INTO product (id, name, images, price, amount_available, category, discount, vendor_id)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-RETURNING id, name, images, price, amount_available, category, discount, vendor_id, created_at, updated_at, description
+INSERT INTO product (id, name, images, price, amount_available, category, discount, description, created_at, updated_at, vendor_id)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+RETURNING id, name, images, price, amount_available, category, discount, description, created_at, updated_at, vendor_id
 `
 
 type CreateProductParams struct {
@@ -26,6 +27,9 @@ type CreateProductParams struct {
 	AmountAvailable int32
 	Category        string
 	Discount        int32
+	Description     string
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
 	VendorID        uuid.UUID
 }
 
@@ -38,6 +42,9 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 		arg.AmountAvailable,
 		arg.Category,
 		arg.Discount,
+		arg.Description,
+		arg.CreatedAt,
+		arg.UpdatedAt,
 		arg.VendorID,
 	)
 	var i Product
@@ -49,10 +56,10 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 		&i.AmountAvailable,
 		&i.Category,
 		&i.Discount,
-		&i.VendorID,
+		&i.Description,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.Description,
+		&i.VendorID,
 	)
 	return i, err
 }
@@ -70,7 +77,7 @@ const updateProduct = `-- name: UpdateProduct :one
 UPDATE product
 SET name = $2, images = $3, price = $4, amount_available = $5, discount = $6, description = $7, updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
-RETURNING id, name, images, price, amount_available, category, discount, vendor_id, created_at, updated_at, description
+RETURNING id, name, images, price, amount_available, category, discount, description, created_at, updated_at, vendor_id
 `
 
 type UpdateProductParams struct {
@@ -102,10 +109,10 @@ func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (P
 		&i.AmountAvailable,
 		&i.Category,
 		&i.Discount,
-		&i.VendorID,
+		&i.Description,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.Description,
+		&i.VendorID,
 	)
 	return i, err
 }

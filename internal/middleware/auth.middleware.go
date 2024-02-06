@@ -15,7 +15,7 @@ import (
 )
 
 type protectedVendorHandler func(w http.ResponseWriter, r *http.Request, vendor database.Vendor, apiCfg *models.ApiConfig)
-type protectedBuyerHandler func(w http.ResponseWriter, r *http.Request, vendor database.Buyer, apiCfg *models.ApiConfig)
+type protectedBuyerHandler func(w http.ResponseWriter, r *http.Request, vendor database.Customer, apiCfg *models.ApiConfig)
 
 func VendorIsAuthorized(apiCfg *models.ApiConfig, handler protectedVendorHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -43,7 +43,7 @@ func BuyerIsAuthorized(apiCfg *models.ApiConfig, handler protectedBuyerHandler) 
 			http.Error(w, "Buyer not authorized", http.StatusUnauthorized)
 		}
 
-		buyer, err := apiCfg.DB.GetBuyerByID(r.Context(), id)
+		buyer, err := apiCfg.DB.GetCustomerByID(r.Context(), id)
 		if err != nil {
 			log.Println("error finding vendor: ", err)
 			return

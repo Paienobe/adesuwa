@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func CreateOrder(w http.ResponseWriter, r *http.Request, buyer database.Buyer, apiCfg *models.ApiConfig) {
+func CreateOrder(w http.ResponseWriter, r *http.Request, customer database.Customer, apiCfg *models.ApiConfig) {
 
 	type orderedItem struct {
 		ProductID string  `json:"product_id"`
@@ -36,7 +36,7 @@ func CreateOrder(w http.ResponseWriter, r *http.Request, buyer database.Buyer, a
 
 	order, err := apiCfg.DB.CreateCustomerOrder(r.Context(), database.CreateCustomerOrderParams{
 		ID:              uuid.New(),
-		BuyerID:         buyer.ID,
+		CustomerID:      customer.ID,
 		CreatedAt:       time.Now(),
 		Status:          "Processing",
 		ShippingAddress: params.ShippingAddress,

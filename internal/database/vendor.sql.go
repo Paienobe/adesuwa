@@ -8,12 +8,13 @@ package database
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/google/uuid"
 )
 
 const findVendorByEmail = `-- name: FindVendorByEmail :one
-SELECT id, name, email, profile_image, banner_image, description, password, created_at, updated_at FROM vendor WHERE email = $1
+SELECT id, first_name, last_name, business_name, email, country, profile_image, banner_image, description, password, created_at, updated_at FROM vendor WHERE email = $1
 `
 
 func (q *Queries) FindVendorByEmail(ctx context.Context, email string) (Vendor, error) {
@@ -21,8 +22,11 @@ func (q *Queries) FindVendorByEmail(ctx context.Context, email string) (Vendor, 
 	var i Vendor
 	err := row.Scan(
 		&i.ID,
-		&i.Name,
+		&i.FirstName,
+		&i.LastName,
+		&i.BusinessName,
 		&i.Email,
+		&i.Country,
 		&i.ProfileImage,
 		&i.BannerImage,
 		&i.Description,
@@ -34,7 +38,7 @@ func (q *Queries) FindVendorByEmail(ctx context.Context, email string) (Vendor, 
 }
 
 const findVendorById = `-- name: FindVendorById :one
-SELECT id, name, email, profile_image, banner_image, description, password, created_at, updated_at FROM vendor WHERE id = $1
+SELECT id, first_name, last_name, business_name, email, country, profile_image, banner_image, description, password, created_at, updated_at FROM vendor WHERE id = $1
 `
 
 func (q *Queries) FindVendorById(ctx context.Context, id uuid.UUID) (Vendor, error) {
@@ -42,8 +46,11 @@ func (q *Queries) FindVendorById(ctx context.Context, id uuid.UUID) (Vendor, err
 	var i Vendor
 	err := row.Scan(
 		&i.ID,
-		&i.Name,
+		&i.FirstName,
+		&i.LastName,
+		&i.BusinessName,
 		&i.Email,
+		&i.Country,
 		&i.ProfileImage,
 		&i.BannerImage,
 		&i.Description,
@@ -55,30 +62,43 @@ func (q *Queries) FindVendorById(ctx context.Context, id uuid.UUID) (Vendor, err
 }
 
 const registerVendor = `-- name: RegisterVendor :one
-INSERT INTO vendor (id, name, email, password)
-VALUES($1, $2, $3, $4)
-RETURNING id, name, email, profile_image, banner_image, description, password, created_at, updated_at
+INSERT INTO vendor (id, first_name, last_name, business_name, email, country, password, created_at, updated_at)
+VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
+RETURNING id, first_name, last_name, business_name, email, country, profile_image, banner_image, description, password, created_at, updated_at
 `
 
 type RegisterVendorParams struct {
-	ID       uuid.UUID
-	Name     string
-	Email    string
-	Password string
+	ID           uuid.UUID
+	FirstName    string
+	LastName     string
+	BusinessName string
+	Email        string
+	Country      string
+	Password     string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }
 
 func (q *Queries) RegisterVendor(ctx context.Context, arg RegisterVendorParams) (Vendor, error) {
 	row := q.db.QueryRowContext(ctx, registerVendor,
 		arg.ID,
-		arg.Name,
+		arg.FirstName,
+		arg.LastName,
+		arg.BusinessName,
 		arg.Email,
+		arg.Country,
 		arg.Password,
+		arg.CreatedAt,
+		arg.UpdatedAt,
 	)
 	var i Vendor
 	err := row.Scan(
 		&i.ID,
-		&i.Name,
+		&i.FirstName,
+		&i.LastName,
+		&i.BusinessName,
 		&i.Email,
+		&i.Country,
 		&i.ProfileImage,
 		&i.BannerImage,
 		&i.Description,

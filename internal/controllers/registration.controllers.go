@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/Paienobe/adesuwa/internal/database"
 	"github.com/Paienobe/adesuwa/internal/models"
@@ -12,17 +13,20 @@ import (
 )
 
 type vendorRegistrationParams struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	FirstName    string `json:"first_name"`
+	LastName     string `json:"last_name"`
+	Email        string `json:"email"`
+	Password     string `json:"password"`
+	Country      string `json:"country"`
+	BusinessName string `json:"business_name"`
 }
 
 type buyerRegistrationParams struct {
-	ID        uuid.UUID `json:"id"`
-	FirstName string    `json:"first_name"`
-	LastName  string    `json:"last_name"`
-	Email     string    `json:"email"`
-	Password  string    `json:"password"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	Country   string `json:"country"`
 }
 
 func RegisterVendor(apiCfg *models.ApiConfig) http.HandlerFunc {
@@ -40,10 +44,15 @@ func RegisterVendor(apiCfg *models.ApiConfig) http.HandlerFunc {
 		}
 
 		_, err = apiCfg.DB.RegisterVendor(r.Context(), database.RegisterVendorParams{
-			ID:       uuid.New(),
-			Name:     params.Name,
-			Email:    params.Email,
-			Password: hashedPassword,
+			ID:           uuid.New(),
+			FirstName:    params.FirstName,
+			LastName:     params.LastName,
+			BusinessName: params.BusinessName,
+			Email:        params.Email,
+			Country:      params.Country,
+			Password:     hashedPassword,
+			CreatedAt:    time.Now(),
+			UpdatedAt:    time.Now(),
 		})
 
 		if err != nil {
@@ -71,12 +80,15 @@ func RegisterBuyer(apiCfg *models.ApiConfig) http.HandlerFunc {
 			return
 		}
 
-		_, err = apiCfg.DB.RegisterBuyer(r.Context(), database.RegisterBuyerParams{
+		_, err = apiCfg.DB.RegisterCustomer(r.Context(), database.RegisterCustomerParams{
 			ID:        uuid.New(),
 			FirstName: params.FirstName,
 			LastName:  params.LastName,
 			Email:     params.Email,
 			Password:  hashedPassword,
+			Country:   params.Country,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
 		})
 
 		if err != nil {

@@ -13,15 +13,16 @@ import (
 )
 
 const createCustomerOrder = `-- name: CreateCustomerOrder :one
-INSERT INTO customer_order (id, buyer_id, created_at, status, shipping_address, payment_method, payment_status, total_spent)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-RETURNING id, buyer_id, created_at, status, shipping_address, payment_method, payment_status, total_spent
+INSERT INTO customer_order (id, customer_id, created_at, updated_at, status, shipping_address, payment_method, payment_status, total_spent)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+RETURNING id, customer_id, created_at, updated_at, status, shipping_address, payment_method, payment_status, total_spent
 `
 
 type CreateCustomerOrderParams struct {
 	ID              uuid.UUID
-	BuyerID         uuid.UUID
+	CustomerID      uuid.UUID
 	CreatedAt       time.Time
+	UpdatedAt       time.Time
 	Status          string
 	ShippingAddress string
 	PaymentMethod   string
@@ -32,8 +33,9 @@ type CreateCustomerOrderParams struct {
 func (q *Queries) CreateCustomerOrder(ctx context.Context, arg CreateCustomerOrderParams) (CustomerOrder, error) {
 	row := q.db.QueryRowContext(ctx, createCustomerOrder,
 		arg.ID,
-		arg.BuyerID,
+		arg.CustomerID,
 		arg.CreatedAt,
+		arg.UpdatedAt,
 		arg.Status,
 		arg.ShippingAddress,
 		arg.PaymentMethod,
@@ -43,8 +45,9 @@ func (q *Queries) CreateCustomerOrder(ctx context.Context, arg CreateCustomerOrd
 	var i CustomerOrder
 	err := row.Scan(
 		&i.ID,
-		&i.BuyerID,
+		&i.CustomerID,
 		&i.CreatedAt,
+		&i.UpdatedAt,
 		&i.Status,
 		&i.ShippingAddress,
 		&i.PaymentMethod,

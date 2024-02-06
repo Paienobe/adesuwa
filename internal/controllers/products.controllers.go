@@ -25,6 +25,7 @@ func CreateNewProduct(w http.ResponseWriter, r *http.Request, vendor database.Ve
 	productPrice, _ := strconv.ParseFloat(r.Form.Get("price"), 64)
 	productAmountAvailable, _ := strconv.ParseInt(r.Form.Get("amount_available"), 0, 64)
 	productCategory := r.Form.Get("category")
+	productDescription := r.Form.Get("description")
 	productDiscount, _ := strconv.ParseInt(r.Form.Get("discount"), 0, 64)
 	fileLength, _ := strconv.ParseInt(r.Form.Get("file_length"), 0, 64)
 	imageURLs := []string{}
@@ -45,6 +46,7 @@ func CreateNewProduct(w http.ResponseWriter, r *http.Request, vendor database.Ve
 		Category:        productCategory,
 		VendorID:        vendor.ID,
 		Discount:        int32(productDiscount),
+		Description:     productDescription,
 	})
 
 	if err != nil {

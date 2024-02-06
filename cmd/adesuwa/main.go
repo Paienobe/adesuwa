@@ -56,13 +56,14 @@ func main() {
 	// ===================== vendor routes =====================
 	router.Post("/register-vendor", controllers.RegisterVendor(&apiCfg))
 	router.Post("/login-vendor", controllers.LoginVendor(&apiCfg))
-	router.Post("/create-product", middleware.VendorIsAuthorized(&apiCfg, controllers.CreateNewProduct))
 	router.Post("/update-profile-pic", middleware.VendorIsAuthorized(&apiCfg, controllers.UpdateVendorProfilePic))
 	router.Post("/update-banner", middleware.VendorIsAuthorized(&apiCfg, controllers.UpdateVendorBanner))
 	router.Post("/update-description", middleware.VendorIsAuthorized(&apiCfg, controllers.UpdateVendorDescription))
 	router.Post("/product", middleware.VendorIsAuthorized(&apiCfg, controllers.CreateNewProduct))
 
 	// ===================== buyer routes =====================
+	router.Post("/register-buyer", controllers.RegisterBuyer(&apiCfg))
+	router.Post("/login-buyer", controllers.LoginBuyer(&apiCfg))
 	router.Post("/order", middleware.BuyerIsAuthorized(&apiCfg, controllers.CreateOrder))
 
 	server := &http.Server{

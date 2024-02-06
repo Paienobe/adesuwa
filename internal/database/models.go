@@ -11,11 +11,12 @@ import (
 	"github.com/google/uuid"
 )
 
-type Buyer struct {
+type Customer struct {
 	ID           uuid.UUID
 	FirstName    string
 	LastName     string
 	Email        string
+	Country      string
 	ProfileImage sql.NullString
 	Password     string
 	CreatedAt    time.Time
@@ -24,8 +25,9 @@ type Buyer struct {
 
 type CustomerOrder struct {
 	ID              uuid.UUID
-	BuyerID         uuid.UUID
+	CustomerID      uuid.UUID
 	CreatedAt       time.Time
+	UpdatedAt       time.Time
 	Status          string
 	ShippingAddress string
 	PaymentMethod   string
@@ -50,16 +52,19 @@ type Product struct {
 	AmountAvailable int32
 	Category        string
 	Discount        int32
-	VendorID        uuid.UUID
+	Description     string
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
-	Description     string
+	VendorID        uuid.UUID
 }
 
 type Vendor struct {
 	ID           uuid.UUID
-	Name         string
+	FirstName    string
+	LastName     string
+	BusinessName string
 	Email        string
+	Country      string
 	ProfileImage sql.NullString
 	BannerImage  sql.NullString
 	Description  sql.NullString
