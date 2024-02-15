@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func GenerateJWT(email string, id uuid.UUID) (string, error) {
+func GenerateJWT(email string, id uuid.UUID, isAccessToken bool) (string, error) {
 	secretKey := os.Getenv("JWT_SECRET")
 	if secretKey == "" {
 		log.Fatal("JWT_SECRET does not exist in environment")
@@ -21,7 +21,9 @@ func GenerateJWT(email string, id uuid.UUID) (string, error) {
 	claims["authorized"] = true
 	claims["email"] = email
 	claims["id"] = id
-	claims["exp"] = time.Now().Add(time.Minute * 30).Unix()
+	if isAccessToken {
+		claims["exp"] = time.Now().Add(time.Minute * 15).Unix()
+	}
 
 	tokenString, err := token.SignedString(mySigningKey)
 

@@ -5,6 +5,7 @@ CREATE TABLE vendor (
     last_name VARCHAR(50) NOT NULL,
     business_name TEXT NOT NULL UNIQUE,
     email VARCHAR(150) UNIQUE NOT NULL,
+    phone_number VARCHAR(25) UNIQUE NOT NULL,
     country VARCHAR(70) NOT NULL,
     profile_image TEXT,
     banner_image TEXT,

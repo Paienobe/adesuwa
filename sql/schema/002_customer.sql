@@ -4,6 +4,7 @@ CREATE TABLE customer (
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
     email VARCHAR(150) UNIQUE NOT NULL,
+    phone_number VARCHAR(25) UNIQUE NOT NULL,
     country VARCHAR(70) NOT NULL,
     profile_image TEXT,
     password TEXT NOT NULL,

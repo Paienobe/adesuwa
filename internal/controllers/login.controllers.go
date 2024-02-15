@@ -32,7 +32,7 @@ func LoginVendor(apiCfg *models.ApiConfig) http.HandlerFunc {
 	}
 }
 
-func LoginBuyer(apiCfg *models.ApiConfig) http.HandlerFunc {
+func LoginCustomer(apiCfg *models.ApiConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		params := LoginParams{}
 
@@ -57,7 +57,7 @@ func handleLogin(w http.ResponseWriter, paramPassword, userPassword, userEmail s
 		return
 	}
 
-	tokenString, err := utils.GenerateJWT(userEmail, userID)
+	tokenString, err := utils.GenerateJWT(userEmail, userID, true)
 	if err != nil {
 		log.Println("failed to generate JWT")
 		http.Error(w, "something went wrong", http.StatusInternalServerError)
@@ -67,6 +67,13 @@ func handleLogin(w http.ResponseWriter, paramPassword, userPassword, userEmail s
 	type login struct {
 		Token string `json:"token"`
 	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "adesuwa",
+		Value:    tokenString,
+		HttpOnly: true,
+		Path:     "/",
+	})
 
 	utils.RespondWithJSON(w, 200, login{Token: tokenString})
 }

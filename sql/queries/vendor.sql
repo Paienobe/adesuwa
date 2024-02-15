@@ -1,6 +1,6 @@
 -- name: RegisterVendor :one
-INSERT INTO vendor (id, first_name, last_name, business_name, email, country, password, created_at, updated_at)
-VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
+INSERT INTO vendor (id, first_name, last_name, business_name, email, phone_number, country, password, created_at, updated_at)
+VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 RETURNING *;
 
 -- name: FindVendorById :one

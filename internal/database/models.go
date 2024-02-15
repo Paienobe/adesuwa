@@ -16,6 +16,7 @@ type Customer struct {
 	FirstName    string
 	LastName     string
 	Email        string
+	PhoneNumber  string
 	Country      string
 	ProfileImage sql.NullString
 	Password     string
@@ -64,6 +65,7 @@ type Vendor struct {
 	LastName     string
 	BusinessName string
 	Email        string
+	PhoneNumber  string
 	Country      string
 	ProfileImage sql.NullString
 	BannerImage  sql.NullString

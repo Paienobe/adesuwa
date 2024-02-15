@@ -17,8 +17,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// func (g database.Buyer) em() {}
-
 func main() {
 	godotenv.Load()
 
@@ -45,11 +43,11 @@ func main() {
 	router := chi.NewRouter()
 
 	router.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://*", "http://*"},
+		AllowedOrigins:   []string{"http://localhost:5173"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
 		AllowedHeaders:   []string{"*"},
 		ExposedHeaders:   []string{"Link"},
-		AllowCredentials: false,
+		AllowCredentials: true,
 		MaxAge:           300,
 	}))
 
@@ -62,8 +60,8 @@ func main() {
 	router.Post("/product", middleware.VendorIsAuthorized(&apiCfg, controllers.CreateNewProduct))
 
 	// ===================== buyer routes =====================
-	router.Post("/register-buyer", controllers.RegisterBuyer(&apiCfg))
-	router.Post("/login-buyer", controllers.LoginBuyer(&apiCfg))
+	router.Post("/register-customer", controllers.RegisterCustomer(&apiCfg))
+	router.Post("/login-customer", controllers.LoginCustomer(&apiCfg))
 	router.Post("/order", middleware.BuyerIsAuthorized(&apiCfg, controllers.CreateOrder))
 
 	server := &http.Server{

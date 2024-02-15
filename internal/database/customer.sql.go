@@ -13,7 +13,7 @@ import (
 )
 
 const findCustomerByEmail = `-- name: FindCustomerByEmail :one
-SELECT id, first_name, last_name, email, country, profile_image, password, created_at, updated_at FROM customer WHERE email = $1
+SELECT id, first_name, last_name, email, phone_number, country, profile_image, password, created_at, updated_at FROM customer WHERE email = $1
 `
 
 func (q *Queries) FindCustomerByEmail(ctx context.Context, email string) (Customer, error) {
@@ -24,6 +24,7 @@ func (q *Queries) FindCustomerByEmail(ctx context.Context, email string) (Custom
 		&i.FirstName,
 		&i.LastName,
 		&i.Email,
+		&i.PhoneNumber,
 		&i.Country,
 		&i.ProfileImage,
 		&i.Password,
@@ -34,7 +35,7 @@ func (q *Queries) FindCustomerByEmail(ctx context.Context, email string) (Custom
 }
 
 const getCustomerByID = `-- name: GetCustomerByID :one
-SELECT id, first_name, last_name, email, country, profile_image, password, created_at, updated_at FROM customer WHERE id = $1
+SELECT id, first_name, last_name, email, phone_number, country, profile_image, password, created_at, updated_at FROM customer WHERE id = $1
 `
 
 func (q *Queries) GetCustomerByID(ctx context.Context, id uuid.UUID) (Customer, error) {
@@ -45,6 +46,7 @@ func (q *Queries) GetCustomerByID(ctx context.Context, id uuid.UUID) (Customer, 
 		&i.FirstName,
 		&i.LastName,
 		&i.Email,
+		&i.PhoneNumber,
 		&i.Country,
 		&i.ProfileImage,
 		&i.Password,
@@ -55,20 +57,21 @@ func (q *Queries) GetCustomerByID(ctx context.Context, id uuid.UUID) (Customer, 
 }
 
 const registerCustomer = `-- name: RegisterCustomer :one
-INSERT into customer (id, first_name, last_name, email, country, password, created_at, updated_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-RETURNING id, first_name, last_name, email, country, profile_image, password, created_at, updated_at
+INSERT into customer (id, first_name, last_name, email, phone_number, country, password, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+RETURNING id, first_name, last_name, email, phone_number, country, profile_image, password, created_at, updated_at
 `
 
 type RegisterCustomerParams struct {
-	ID        uuid.UUID
-	FirstName string
-	LastName  string
-	Email     string
-	Country   string
-	Password  string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID          uuid.UUID
+	FirstName   string
+	LastName    string
+	Email       string
+	PhoneNumber string
+	Country     string
+	Password    string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 func (q *Queries) RegisterCustomer(ctx context.Context, arg RegisterCustomerParams) (Customer, error) {
@@ -77,6 +80,7 @@ func (q *Queries) RegisterCustomer(ctx context.Context, arg RegisterCustomerPara
 		arg.FirstName,
 		arg.LastName,
 		arg.Email,
+		arg.PhoneNumber,
 		arg.Country,
 		arg.Password,
 		arg.CreatedAt,
@@ -88,6 +92,7 @@ func (q *Queries) RegisterCustomer(ctx context.Context, arg RegisterCustomerPara
 		&i.FirstName,
 		&i.LastName,
 		&i.Email,
+		&i.PhoneNumber,
 		&i.Country,
 		&i.ProfileImage,
 		&i.Password,

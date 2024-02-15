@@ -43,7 +43,7 @@ func RegisterVendor(apiCfg *models.ApiConfig) http.HandlerFunc {
 			return
 		}
 
-		_, err = apiCfg.DB.RegisterVendor(r.Context(), database.RegisterVendorParams{
+		vendor, err := apiCfg.DB.RegisterVendor(r.Context(), database.RegisterVendorParams{
 			ID:           uuid.New(),
 			FirstName:    params.FirstName,
 			LastName:     params.LastName,
@@ -61,12 +61,41 @@ func RegisterVendor(apiCfg *models.ApiConfig) http.HandlerFunc {
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusCreated, models.SuccessResponse{Success: true, Msg: "Vendor account created!"})
+		refreshToken, err := utils.GenerateJWT(vendor.Email, vendor.ID, false)
+
+		if err != nil {
+			log.Println(err)
+			http.Error(w, "Error registering vendor", http.StatusBadRequest)
+			return
+		}
+
+		accessToken, err := utils.GenerateJWT(vendor.Email, vendor.ID, true)
+
+		if err != nil {
+			log.Println(err)
+			http.Error(w, "Error registering vendor", http.StatusBadRequest)
+			return
+		}
+
+		http.SetCookie(w, &http.Cookie{
+			Name:     "adesuwa_refresh",
+			Value:    refreshToken,
+			Path:     "/",
+			Expires:  time.Now().Add(time.Minute * 262800), //262800 minutes make 6 months
+			HttpOnly: true,
+		})
+
+		type regSuc struct {
+			AccessToken string       `json:"access_token"`
+			Vendor      utils.Vendor `json:"vendor"`
+		}
+
+		utils.RespondWithJSON(w, http.StatusCreated, regSuc{AccessToken: accessToken, Vendor: utils.DbVendorToVendor(vendor)})
 
 	}
 }
 
-func RegisterBuyer(apiCfg *models.ApiConfig) http.HandlerFunc {
+func RegisterCustomer(apiCfg *models.ApiConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		params := buyerRegistrationParams{}
 

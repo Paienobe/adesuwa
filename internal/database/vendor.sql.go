@@ -14,7 +14,7 @@ import (
 )
 
 const findVendorByEmail = `-- name: FindVendorByEmail :one
-SELECT id, first_name, last_name, business_name, email, country, profile_image, banner_image, description, password, created_at, updated_at FROM vendor WHERE email = $1
+SELECT id, first_name, last_name, business_name, email, phone_number, country, profile_image, banner_image, description, password, created_at, updated_at FROM vendor WHERE email = $1
 `
 
 func (q *Queries) FindVendorByEmail(ctx context.Context, email string) (Vendor, error) {
@@ -26,6 +26,7 @@ func (q *Queries) FindVendorByEmail(ctx context.Context, email string) (Vendor, 
 		&i.LastName,
 		&i.BusinessName,
 		&i.Email,
+		&i.PhoneNumber,
 		&i.Country,
 		&i.ProfileImage,
 		&i.BannerImage,
@@ -38,7 +39,7 @@ func (q *Queries) FindVendorByEmail(ctx context.Context, email string) (Vendor, 
 }
 
 const findVendorById = `-- name: FindVendorById :one
-SELECT id, first_name, last_name, business_name, email, country, profile_image, banner_image, description, password, created_at, updated_at FROM vendor WHERE id = $1
+SELECT id, first_name, last_name, business_name, email, phone_number, country, profile_image, banner_image, description, password, created_at, updated_at FROM vendor WHERE id = $1
 `
 
 func (q *Queries) FindVendorById(ctx context.Context, id uuid.UUID) (Vendor, error) {
@@ -50,6 +51,7 @@ func (q *Queries) FindVendorById(ctx context.Context, id uuid.UUID) (Vendor, err
 		&i.LastName,
 		&i.BusinessName,
 		&i.Email,
+		&i.PhoneNumber,
 		&i.Country,
 		&i.ProfileImage,
 		&i.BannerImage,
@@ -62,9 +64,9 @@ func (q *Queries) FindVendorById(ctx context.Context, id uuid.UUID) (Vendor, err
 }
 
 const registerVendor = `-- name: RegisterVendor :one
-INSERT INTO vendor (id, first_name, last_name, business_name, email, country, password, created_at, updated_at)
-VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
-RETURNING id, first_name, last_name, business_name, email, country, profile_image, banner_image, description, password, created_at, updated_at
+INSERT INTO vendor (id, first_name, last_name, business_name, email, phone_number, country, password, created_at, updated_at)
+VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+RETURNING id, first_name, last_name, business_name, email, phone_number, country, profile_image, banner_image, description, password, created_at, updated_at
 `
 
 type RegisterVendorParams struct {
@@ -73,6 +75,7 @@ type RegisterVendorParams struct {
 	LastName     string
 	BusinessName string
 	Email        string
+	PhoneNumber  string
 	Country      string
 	Password     string
 	CreatedAt    time.Time
@@ -86,6 +89,7 @@ func (q *Queries) RegisterVendor(ctx context.Context, arg RegisterVendorParams) 
 		arg.LastName,
 		arg.BusinessName,
 		arg.Email,
+		arg.PhoneNumber,
 		arg.Country,
 		arg.Password,
 		arg.CreatedAt,
@@ -98,6 +102,7 @@ func (q *Queries) RegisterVendor(ctx context.Context, arg RegisterVendorParams) 
 		&i.LastName,
 		&i.BusinessName,
 		&i.Email,
+		&i.PhoneNumber,
 		&i.Country,
 		&i.ProfileImage,
 		&i.BannerImage,
