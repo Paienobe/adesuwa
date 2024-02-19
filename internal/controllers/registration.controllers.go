@@ -19,6 +19,7 @@ type vendorRegistrationParams struct {
 	Password     string `json:"password"`
 	Country      string `json:"country"`
 	BusinessName string `json:"business_name"`
+	PhoneNumber  string `json:"phone_number"`
 }
 
 type buyerRegistrationParams struct {
@@ -49,6 +50,7 @@ func RegisterVendor(apiCfg *models.ApiConfig) http.HandlerFunc {
 			LastName:     params.LastName,
 			BusinessName: params.BusinessName,
 			Email:        params.Email,
+			PhoneNumber:  params.PhoneNumber,
 			Country:      params.Country,
 			Password:     hashedPassword,
 			CreatedAt:    time.Now(),

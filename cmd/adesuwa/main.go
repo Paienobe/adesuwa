@@ -64,6 +64,8 @@ func main() {
 	router.Post("/login-customer", controllers.LoginCustomer(&apiCfg))
 	router.Post("/order", middleware.BuyerIsAuthorized(&apiCfg, controllers.CreateOrder))
 
+	router.Get("/refresh", controllers.RefreshUser(&apiCfg))
+
 	server := &http.Server{
 		Handler: router,
 		Addr:    ":" + portString,

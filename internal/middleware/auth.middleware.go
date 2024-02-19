@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -19,7 +18,13 @@ type protectedBuyerHandler func(w http.ResponseWriter, r *http.Request, vendor d
 
 func VendorIsAuthorized(apiCfg *models.ApiConfig, handler protectedVendorHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id, err := jwtValidation(w, r)
+		tokenString, err := utils.GetBearerToken(r)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		id, err := JwtValidation(w, r, tokenString)
 		if err != nil {
 			log.Println(err)
 			http.Error(w, "Vendor not authorized", http.StatusUnauthorized)
@@ -37,7 +42,13 @@ func VendorIsAuthorized(apiCfg *models.ApiConfig, handler protectedVendorHandler
 
 func BuyerIsAuthorized(apiCfg *models.ApiConfig, handler protectedBuyerHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id, err := jwtValidation(w, r)
+		tokenString, err := utils.GetBearerToken(r)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		id, err := JwtValidation(w, r, tokenString)
 		if err != nil {
 			log.Println(err)
 			http.Error(w, "Buyer not authorized", http.StatusUnauthorized)
@@ -53,16 +64,10 @@ func BuyerIsAuthorized(apiCfg *models.ApiConfig, handler protectedBuyerHandler) 
 	}
 }
 
-func jwtValidation(w http.ResponseWriter, r *http.Request) (uuid.UUID, error) {
+func JwtValidation(w http.ResponseWriter, r *http.Request, tokenString string) (uuid.UUID, error) {
 	secretKey := os.Getenv("JWT_SECRET")
 	if secretKey == "" {
 		log.Println("JWT_SECRET does not exist in environment")
-		return uuid.Nil, errors.New("something went wrong")
-	}
-
-	tokenString, err := utils.GetBearerToken(r)
-	if err != nil {
-		log.Println(err)
 		return uuid.Nil, errors.New("something went wrong")
 	}
 
@@ -70,7 +75,7 @@ func jwtValidation(w http.ResponseWriter, r *http.Request) (uuid.UUID, error) {
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("there was an error in parsing %v", err)
+			return nil, errors.New("there was an error in parsing")
 		}
 		return mySigningKey, nil
 	})
