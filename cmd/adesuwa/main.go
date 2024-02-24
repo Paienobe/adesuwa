@@ -69,6 +69,7 @@ func main() {
 	router.Post("/order", middleware.BuyerIsAuthorized(&apiCfg, controllers.CreateOrder))
 
 	router.Get("/refresh", controllers.RefreshUser(&apiCfg))
+	router.Get("/cancel-refresh", controllers.CancelRefresh())
 
 	server := &http.Server{
 		Handler: router,

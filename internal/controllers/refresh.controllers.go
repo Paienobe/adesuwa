@@ -3,6 +3,7 @@ package controllers
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/Paienobe/adesuwa/internal/middleware"
 	"github.com/Paienobe/adesuwa/internal/models"
@@ -45,14 +46,17 @@ func RefreshUser(apiCfg *models.ApiConfig) http.HandlerFunc {
 
 			utils.RespondWithJSON(w, 200, VendorRefresh{AccessToken: access_token, UserType: "vendor", ExpiresIn: 900, UserData: parsedVendor})
 		}
-
-		// customer, err := apiCfg.DB.GetCustomerByID(r.Context(), id)
-		// if err != nil {
-		// 	log.Println("no customer", err)
-		// 	return
-		// } else {
-		// 	utils.RespondWithJSON(w, 200, customer)
-		// }
 	}
+}
 
+func CancelRefresh() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		http.SetCookie(w, &http.Cookie{
+			Name:     "adesuwa_refresh",
+			Value:    "",
+			MaxAge:   0,
+			Expires:  time.Now(),
+			HttpOnly: true,
+		})
+	}
 }
