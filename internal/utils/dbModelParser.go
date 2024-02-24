@@ -14,6 +14,7 @@ type Product struct {
 	Category        string    `json:"category"`
 	Discount        int32     `json:"discount"`
 	VendorID        uuid.UUID `json:"vendor_id"`
+	Description     string    `json:"description"`
 }
 
 func DbProductToProduct(dbProduct database.Product) Product {
@@ -26,7 +27,16 @@ func DbProductToProduct(dbProduct database.Product) Product {
 		Category:        dbProduct.Category,
 		Discount:        dbProduct.Discount,
 		VendorID:        dbProduct.VendorID,
+		Description:     dbProduct.Description,
 	}
+}
+
+func DbProductsToProducts(dbProducts []database.Product) []Product {
+	parsedProducts := []Product{}
+	for _, product := range dbProducts {
+		parsedProducts = append(parsedProducts, DbProductToProduct(product))
+	}
+	return parsedProducts
 }
 
 type Vendor struct {

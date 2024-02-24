@@ -57,7 +57,11 @@ func main() {
 	router.Post("/update-profile-pic", middleware.VendorIsAuthorized(&apiCfg, controllers.UpdateVendorProfilePic))
 	router.Post("/update-banner", middleware.VendorIsAuthorized(&apiCfg, controllers.UpdateVendorBanner))
 	router.Post("/update-description", middleware.VendorIsAuthorized(&apiCfg, controllers.UpdateVendorDescription))
+
 	router.Post("/product", middleware.VendorIsAuthorized(&apiCfg, controllers.CreateNewProduct))
+	router.Put("/product", middleware.VendorIsAuthorized(&apiCfg, controllers.UpdateProduct))
+	router.Delete("/product/{product_id}", middleware.VendorIsAuthorized(&apiCfg, controllers.DeleteProduct))
+	router.Get("/all-products", middleware.VendorIsAuthorized(&apiCfg, controllers.GetAllVendorProducts))
 
 	// ===================== buyer routes =====================
 	router.Post("/register-customer", controllers.RegisterCustomer(&apiCfg))

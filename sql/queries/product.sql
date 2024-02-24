@@ -5,9 +5,20 @@ RETURNING *;
 
 -- name: UpdateProduct :one
 UPDATE product
-SET name = $2, images = $3, price = $4, amount_available = $5, discount = $6, description = $7, updated_at = CURRENT_TIMESTAMP
-WHERE id = $1
+SET 
+  name = $1, 
+  images = COALESCE($2, images),  -- Use COALESCE to handle null values
+  price = $3, 
+  amount_available = $4, 
+  discount = $5, 
+  description = $6, 
+  updated_at = CURRENT_TIMESTAMP
+WHERE id = $7
 RETURNING *;
 
 -- name: DeleteProduct :exec
 DELETE FROM product WHERE id = $1;
+
+-- name: GetAllVendorProducts :many
+SELECT * FROM product
+WHERE vendor_id = $1;

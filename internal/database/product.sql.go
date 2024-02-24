@@ -73,32 +73,79 @@ func (q *Queries) DeleteProduct(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
+const getAllVendorProducts = `-- name: GetAllVendorProducts :many
+SELECT id, name, images, price, amount_available, category, discount, description, created_at, updated_at, vendor_id FROM product
+WHERE vendor_id = $1
+`
+
+func (q *Queries) GetAllVendorProducts(ctx context.Context, vendorID uuid.UUID) ([]Product, error) {
+	rows, err := q.db.QueryContext(ctx, getAllVendorProducts, vendorID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Product
+	for rows.Next() {
+		var i Product
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			pq.Array(&i.Images),
+			&i.Price,
+			&i.AmountAvailable,
+			&i.Category,
+			&i.Discount,
+			&i.Description,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.VendorID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateProduct = `-- name: UpdateProduct :one
 UPDATE product
-SET name = $2, images = $3, price = $4, amount_available = $5, discount = $6, description = $7, updated_at = CURRENT_TIMESTAMP
-WHERE id = $1
+SET 
+  name = $1, 
+  images = COALESCE($2, images),  -- Use COALESCE to handle null values
+  price = $3, 
+  amount_available = $4, 
+  discount = $5, 
+  description = $6, 
+  updated_at = CURRENT_TIMESTAMP
+WHERE id = $7
 RETURNING id, name, images, price, amount_available, category, discount, description, created_at, updated_at, vendor_id
 `
 
 type UpdateProductParams struct {
-	ID              uuid.UUID
 	Name            string
 	Images          []string
 	Price           float64
 	AmountAvailable int32
 	Discount        int32
 	Description     string
+	ID              uuid.UUID
 }
 
 func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (Product, error) {
 	row := q.db.QueryRowContext(ctx, updateProduct,
-		arg.ID,
 		arg.Name,
 		pq.Array(arg.Images),
 		arg.Price,
 		arg.AmountAvailable,
 		arg.Discount,
 		arg.Description,
+		arg.ID,
 	)
 	var i Product
 	err := row.Scan(
