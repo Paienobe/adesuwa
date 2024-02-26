@@ -79,13 +79,7 @@ func RegisterVendor(apiCfg *models.ApiConfig) http.HandlerFunc {
 			return
 		}
 
-		http.SetCookie(w, &http.Cookie{
-			Name:     "adesuwa_refresh",
-			Value:    refreshToken,
-			Path:     "/",
-			Expires:  time.Now().Add(time.Minute * 262800), //262800 minutes make 6 months
-			HttpOnly: true,
-		})
+		utils.SetRefreshCookie(w, refreshToken)
 
 		type regSuc struct {
 			AccessToken string       `json:"access_token"`

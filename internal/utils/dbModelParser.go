@@ -59,3 +59,25 @@ func DbVendorToVendor(dbVendor database.Vendor) Vendor {
 		Description:  dbVendor.Description.String,
 	}
 }
+
+type Customer struct {
+	ID           uuid.UUID `json:"id"`
+	FirstName    string    `json:"first_name"`
+	LastName     string    `json:"last_name"`
+	Email        string    `json:"email"`
+	PhoneNumber  string    `json:"phone_number"`
+	Country      string    `json:"country"`
+	ProfileImage string    `json:"profile_image"`
+}
+
+func DbCustomerToCustomer(dbCustomer database.Customer) Customer {
+	return Customer{
+		ID:           dbCustomer.ID,
+		FirstName:    dbCustomer.FirstName,
+		LastName:     dbCustomer.LastName,
+		Email:        dbCustomer.Email,
+		PhoneNumber:  dbCustomer.PhoneNumber,
+		Country:      dbCustomer.Country,
+		ProfileImage: dbCustomer.ProfileImage.String,
+	}
+}

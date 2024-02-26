@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"log"
 	"net/http"
 
@@ -12,6 +13,18 @@ import (
 type LoginParams struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type handleLoginArgs struct {
+	paramPassword string
+	password      string
+	email         string
+	id            uuid.UUID
+}
+
+type loginSuccess[T any] struct {
+	AccessToken string `json:"access_token"`
+	Data        T      `json:"data"`
 }
 
 func LoginVendor(apiCfg *models.ApiConfig) http.HandlerFunc {
@@ -28,7 +41,24 @@ func LoginVendor(apiCfg *models.ApiConfig) http.HandlerFunc {
 			return
 		}
 
-		handleLogin(w, params.Password, vendor.Password, vendor.Email, vendor.ID)
+		args := handleLoginArgs{
+			paramPassword: params.Password,
+			password:      vendor.Password,
+			email:         vendor.Email,
+			id:            vendor.ID,
+		}
+
+		refreshToken, accessToken, err := handleLogin(w, args)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		utils.SetRefreshCookie(w, refreshToken)
+
+		utils.RespondWithJSON(w, http.StatusOK, loginSuccess[utils.Vendor]{AccessToken: accessToken,
+			Data: utils.DbVendorToVendor(vendor)})
+
 	}
 }
 
@@ -38,7 +68,7 @@ func LoginCustomer(apiCfg *models.ApiConfig) http.HandlerFunc {
 
 		utils.DecodeRequestBody(r, &params)
 
-		buyer, err := apiCfg.DB.FindCustomerByEmail(r.Context(), params.Email)
+		customer, err := apiCfg.DB.FindCustomerByEmail(r.Context(), params.Email)
 
 		if err != nil {
 			log.Println(err)
@@ -46,34 +76,45 @@ func LoginCustomer(apiCfg *models.ApiConfig) http.HandlerFunc {
 			return
 		}
 
-		handleLogin(w, params.Password, buyer.Password, buyer.Email, buyer.ID)
+		args := handleLoginArgs{
+			paramPassword: params.Password,
+			password:      customer.Password,
+			email:         customer.Email,
+			id:            customer.ID,
+		}
+
+		refreshToken, accessToken, err := handleLogin(w, args)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		utils.SetRefreshCookie(w, refreshToken)
+
+		utils.RespondWithJSON(w, http.StatusOK, loginSuccess[utils.Customer]{AccessToken: accessToken, Data: utils.DbCustomerToCustomer(customer)})
 	}
 }
 
-func handleLogin(w http.ResponseWriter, paramPassword, userPassword, userEmail string, userID uuid.UUID) {
-	passwordIsCorrect := utils.CheckPasswordHash(paramPassword, userPassword)
+func handleLogin(w http.ResponseWriter, args handleLoginArgs) (string, string, error) {
+	passwordIsCorrect := utils.CheckPasswordHash(args.paramPassword, args.password)
 	if !passwordIsCorrect {
 		http.Error(w, "password is incorrect", http.StatusUnauthorized)
-		return
+		return "", "", errors.New("password is incorrect")
 	}
 
-	tokenString, err := utils.GenerateJWT(userEmail, userID, true)
+	refreshToken, err := utils.GenerateJWT(args.email, args.id, true)
 	if err != nil {
 		log.Println("failed to generate JWT")
 		http.Error(w, "something went wrong", http.StatusInternalServerError)
-		return
+		return "", "", errors.New("failed to generate JWT")
 	}
 
-	type login struct {
-		Token string `json:"token"`
+	accessToken, err := utils.GenerateJWT(args.email, args.id, true)
+	if err != nil {
+		log.Println("failed to generate JWT")
+		http.Error(w, "something went wrong", http.StatusInternalServerError)
+		return "", "", errors.New("failed to generate JWT")
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "adesuwa",
-		Value:    tokenString,
-		HttpOnly: true,
-		Path:     "/",
-	})
-
-	utils.RespondWithJSON(w, 200, login{Token: tokenString})
+	return refreshToken, accessToken, nil
 }
