@@ -30,6 +30,11 @@ type buyerRegistrationParams struct {
 	Country   string `json:"country"`
 }
 
+type registrationSuccess[T any] struct {
+	AccessToken string `json:"access_token"`
+	Data        T      `json:"data"`
+}
+
 func RegisterVendor(apiCfg *models.ApiConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		params := vendorRegistrationParams{}
@@ -81,12 +86,7 @@ func RegisterVendor(apiCfg *models.ApiConfig) http.HandlerFunc {
 
 		utils.SetRefreshCookie(w, refreshToken)
 
-		type regSuc struct {
-			AccessToken string       `json:"access_token"`
-			Vendor      utils.Vendor `json:"vendor"`
-		}
-
-		utils.RespondWithJSON(w, http.StatusCreated, regSuc{AccessToken: accessToken, Vendor: utils.DbVendorToVendor(vendor)})
+		utils.RespondWithJSON(w, http.StatusCreated, registrationSuccess[utils.Vendor]{AccessToken: accessToken, Data: utils.DbVendorToVendor(vendor)})
 
 	}
 }
@@ -105,7 +105,7 @@ func RegisterCustomer(apiCfg *models.ApiConfig) http.HandlerFunc {
 			return
 		}
 
-		_, err = apiCfg.DB.RegisterCustomer(r.Context(), database.RegisterCustomerParams{
+		customer, err := apiCfg.DB.RegisterCustomer(r.Context(), database.RegisterCustomerParams{
 			ID:        uuid.New(),
 			FirstName: params.FirstName,
 			LastName:  params.LastName,
@@ -122,6 +122,24 @@ func RegisterCustomer(apiCfg *models.ApiConfig) http.HandlerFunc {
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusCreated, models.SuccessResponse{Success: true, Msg: "Buyer account created!"})
+		refreshToken, err := utils.GenerateJWT(customer.Email, customer.ID, false)
+
+		if err != nil {
+			log.Println(err)
+			http.Error(w, "Error registering customer", http.StatusBadRequest)
+			return
+		}
+
+		accessToken, err := utils.GenerateJWT(customer.Email, customer.ID, true)
+
+		if err != nil {
+			log.Println(err)
+			http.Error(w, "Error registering customer", http.StatusBadRequest)
+			return
+		}
+
+		utils.SetRefreshCookie(w, refreshToken)
+
+		utils.RespondWithJSON(w, http.StatusCreated, registrationSuccess[utils.Customer]{AccessToken: accessToken, Data: utils.DbCustomerToCustomer(customer)})
 	}
 }
